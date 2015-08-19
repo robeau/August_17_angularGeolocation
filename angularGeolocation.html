@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Geolocation with AngularJS</title>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        section{
+            text-align: center;
+            margin: 10px auto;
+            height: 100%;
+        }
+
+        #map {
+            height: 600px;
+            width: 600px;
+            padding: 0;
+        }
+    </style>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angularjs/angular.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+</head>
+<body>
+<div ng-app="myApp" ng-controller="myCtrl">
+
+<form action="" name="positionForm" onsubmit="return false;" novalidate>
+<input name="getLat" ng-model="getLat" type="text" placeholder="latitute" /><input name="getLng" ng-model="getLng" type="text" placeholder="longitude" />
+<button type="button" ng-click="sendPosition()">Submit</button>
+</form>
+
+<div id="map" my-dir></div>
+</div>
+<script>
+    var app = angular.module('myApp', []);
+
+    app.service('svc', [ '$rootScope', function ($rootScope) {
+        var service = {
+            lat: 0,
+            lng: 0,
+            initMap: function (lat, lng) {
+                lat = typeof lat !== 'undefined' ? lat : 37.3763019;
+                lng = typeof lng !== 'undefined' ? lng : -122.0305783;
+
+                this.lat = lat;
+                this.lng = lng;
+                console.log("Passed coords: Lat:", lat, "Long:", lng)
+            }
+        }
+        return service;
+    }]);
+    /*
+    app.factory('myFac', function () {
+
+        return{
+            initMap: function (lat,lng) {
+                lat = typeof lat !== 'undefined' ? lat : 32.5;
+                lng = typeof lng !== 'undefined' ? lng : 150.644;
+                console.log("Passed coords: Lat:", lat, "Long:", lng)
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    center: {lat: lat, lng: lng},
+                    zoom: 8
+                });
+                console.log("Lat:", lat, "Long:", lng)
+            }
+        }
+
+    })
+    */
+    app.controller('myCtrl', function ($scope, svc) {
+        angular.element(document).ready(function () {
+            console.log('Document is ready');
+            svc.initMap();
+        });
+        $scope.sendPosition = function(){
+            console.log('updating position...');
+            var form = document.forms.positionForm;
+            var lat = Number(form.getLat.value);
+            var lng = Number(form.getLng.value);
+            svc.initMap(lat,lng);
+            console.log('Moved to new coords. Lat:', lat, "Long:", lng);
+        };
+    });
+    app.directive('myDir', ['$compile', 'svc', function ($compile, svc) {
+       return{
+           scope: true,
+           link: function (scope, element, attrs) {
+               $(function () {
+                   console.log('hello from the directive, Lat:', svc.lat);
+                   var map = new google.maps.Map(document.getElementById('map'), {
+                       center: {lat: svc.lat, lng: svc.lng},
+                       zoom: 8
+                   });
+                   var marker = new google.maps.Marker({
+                       position: map.center,
+                       map: map,
+                       title: 'Hello World!'
+                   });
+                   scope.$watch( function () {
+                       console.log('directive has noticed the change');
+                       map.setCenter({lat:svc.lat,lng:svc.lng});
+                       marker.setMap(null);
+                       marker = new google.maps.Marker({
+                           position: map.center,
+                           map: map,
+                           title: 'Hello World!'
+                       });
+                   })
+               });
+           }
+       }
+    }]);
+
+    $(function () {
+
+
+    });
+
+
+
+
+
+
+</script>
+</body>
+</html>
