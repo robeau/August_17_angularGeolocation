@@ -17,10 +17,17 @@
             height: 100%;
         }
 
+        form{
+            width: 600px;
+            margin: 0 auto;
+            padding: 10px 0;
+        }
+
         #map {
             height: 600px;
             width: 600px;
             padding: 0;
+            margin: 0 auto;
         }
     </style>
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -31,6 +38,8 @@
 <div ng-app="myApp" ng-controller="myCtrl">
 
 <form action="" name="positionForm" onsubmit="return false;" novalidate>
+    <h3><span></span></h3>
+    <h1>Enter new coordinates:</h1>
 <input name="getLat" ng-model="getLat" type="text" placeholder="latitute" /><input name="getLng" ng-model="getLng" type="text" placeholder="longitude" />
 <button type="button" ng-click="sendPosition()">Submit</button>
 </form>
@@ -92,6 +101,7 @@
            scope: true,
            link: function (scope, element, attrs) {
                $(function () {
+                   $('span').html("Lat: " + svc.lat + ", Long:          " + svc.lng);
                    console.log('hello from the directive, Lat:', svc.lat);
                    var map = new google.maps.Map(document.getElementById('map'), {
                        center: {lat: svc.lat, lng: svc.lng},
@@ -103,6 +113,7 @@
                        title: 'Hello World!'
                    });
                    scope.$watch( function () {
+                       $('span').html("Lat: " + svc.lat + ", Long:          " + svc.lng);
                        console.log('directive has noticed the change');
                        map.setCenter({lat:svc.lat,lng:svc.lng});
                        marker.setMap(null);
